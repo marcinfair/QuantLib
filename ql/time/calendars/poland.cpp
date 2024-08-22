@@ -26,12 +26,15 @@ namespace QuantLib {
         // all calendar instances share the same implementation instance
         static auto settlementImpl = ext::make_shared<Poland::SettlementImpl>();
         static auto wseImpl = ext::make_shared<Poland::WseImpl>();
+        static auto fiscalImpl = ext::make_shared<Poland::FiscalImpl>();
         switch (market) {
           case Settlement:
             impl_ = settlementImpl;
             break;
           case WSE:
             impl_ = wseImpl;
+          case Fiscal:
+            impl_ = fiscalImpl;
             break;
           default:
             QL_FAIL("unknown market");
@@ -82,6 +85,17 @@ namespace QuantLib {
             (d == 24  && m == December)
             || (d == 31  && m == December)
             ) return false; // NOLINT(readability-simplify-boolean-expr)
+
+        return SettlementImpl::isBusinessDay(date);
+    }
+
+
+    bool Poland::FiscalImpl::isBusinessDay(const Date& date) const {
+        // Remove holidays that are not business days for end of quarter
+
+        if (
+            date.isEndOfQuarter(date)
+            ) return true; // NOLINT(readability-simplify-boolean-expr)
 
         return SettlementImpl::isBusinessDay(date);
     }

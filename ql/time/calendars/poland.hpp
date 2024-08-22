@@ -60,10 +60,16 @@ namespace QuantLib {
             std::string name() const override { return "Warsaw stock exchange"; }
             bool isBusinessDay(const Date&) const override;
         };
+        class FiscalImpl final : public SettlementImpl {
+          public:
+            std::string name() const override { return "Fiscal"; }
+            bool isBusinessDay(const Date&) const override;
+        };
       public:
         //! PL calendars
         enum Market { Settlement,  //!< Settlement calendar
                       WSE,         //!< Warsaw stock exchange calendar
+                      Fiscal,      //!< Fiscal calendar
         };
 
         explicit Poland(Market market = Settlement);

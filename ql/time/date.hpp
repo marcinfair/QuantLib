@@ -215,6 +215,10 @@ namespace QuantLib {
         static Date endOfMonth(const Date& d);
         //! whether a date is the last day of its month
         static bool isEndOfMonth(const Date& d);
+        //! last day of the quarter to which the given date belongs
+        static Date endOfQuarter(const Date& d);
+        //! whether a date is the last day of its quarter
+        static bool isEndOfQuarter(const Date& d);
         //! next given weekday following or equal to the given date
         /*! E.g., the Friday following Tuesday, January 15th, 2002
             was January 18th, 2002.
@@ -447,6 +451,42 @@ namespace QuantLib {
 
     inline bool Date::isEndOfMonth(const Date& d) {
        return (d.dayOfMonth() == monthLength(d.month(), isLeap(d.year())));
+    }
+
+    inline Date Date::endOfQuarter(const Date& d) {
+        Month m = d.month();
+        Year y = d.year();
+        Month endMonthQuarter;
+        
+        switch (m) {
+            case January:
+            case February:
+            case March:
+                endMonthQuarter = March;
+                break;
+            case April:
+            case May:
+            case June:
+                endMonthQuarter = June;
+                break;
+            case July:
+            case August:
+            case September:
+                endMonthQuarter = September;
+                break;
+            case October:
+            case November:
+            case December:
+                endMonthQuarter = December;
+                break;
+            default:
+                throw std::runtime_error("Invalid month");
+        }
+        return {monthLength(endMonthQuarter, isLeap(y)), endMonthQuarter, y};
+    }
+
+    inline bool Date::isEndOfQuarter(const Date& d) {
+        return d == endOfQuarter(d);
     }
 
     inline Date::serial_type operator-(const Date& d1, const Date& d2) {
