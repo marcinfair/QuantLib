@@ -31,6 +31,7 @@
 #ifndef quantlib_date_hpp
 #define quantlib_date_hpp
 
+#include <ql/errors.hpp>
 #include <ql/time/period.hpp>
 #include <ql/time/weekday.hpp>
 #include <ql/utilities/null.hpp>
@@ -480,7 +481,7 @@ namespace QuantLib {
                 endMonthQuarter = December;
                 break;
             default:
-                throw std::runtime_error("Invalid month");
+                QL_FAIL("unknown month");
         }
         return {monthLength(endMonthQuarter, isLeap(y)), endMonthQuarter, y};
     }

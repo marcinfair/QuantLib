@@ -49,13 +49,23 @@ namespace QuantLib {
     */
     class TARGET : public Calendar {
       private:
-        class Impl final : public Calendar::WesternImpl {
+        class SettlementImpl : public Calendar::WesternImpl {
           public:
-            std::string name() const override { return "TARGET"; }
+            std::string name() const override { return "TARGET Settlement"; }
+            bool isBusinessDay(const Date&) const override;
+        };
+        class FiscalImpl final : public SettlementImpl {
+          public:
+            std::string name() const override { return "Fiscal"; }
             bool isBusinessDay(const Date&) const override;
         };
       public:
-        TARGET();
+         //! TARGET calendars
+        enum Market { Settlement,  //!< Settlement calendar
+                      Fiscal,      //!< Fiscal calendar
+        };
+
+        explicit TARGET(Market market = Settlement);
     };
 
 }

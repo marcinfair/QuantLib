@@ -18,16 +18,28 @@
 */
 
 #include <ql/time/calendars/target.hpp>
+#include <ql/errors.hpp>
 
 namespace QuantLib {
 
-    TARGET::TARGET() {
+    TARGET::TARGET(TARGET::Market market) {
         // all calendar instances share the same implementation instance
-        static ext::shared_ptr<Calendar::Impl> impl(new TARGET::Impl);
-        impl_ = impl;
+        static auto settlementImpl = ext::make_shared<TARGET::SettlementImpl>();
+        static auto fiscalImpl = ext::make_shared<TARGET::FiscalImpl>();
+        switch (market) {
+          case Settlement:
+            impl_ = settlementImpl;
+            break;
+          case Fiscal:
+            impl_ = fiscalImpl;
+            break;
+          default:
+            QL_FAIL("unknown market");
+        }
+
     }
 
-    bool TARGET::Impl::isBusinessDay(const Date& date) const {
+    bool TARGET::SettlementImpl::isBusinessDay(const Date& date) const {
         Weekday w = date.weekday();
         Day d = date.dayOfMonth(), dd = date.dayOfYear();
         Month m = date.month();
@@ -51,6 +63,17 @@ namespace QuantLib {
                 (y == 1998 || y == 1999 || y == 2001)))
             return false; // NOLINT(readability-simplify-boolean-expr)
         return true;
+    }
+
+
+    bool TARGET::FiscalImpl::isBusinessDay(const Date& date) const {
+        // Remove holidays that are not business days for end of quarter
+
+        if (
+            date.isEndOfQuarter(date)
+            ) return true; // NOLINT(readability-simplify-boolean-expr)
+
+        return SettlementImpl::isBusinessDay(date);
     }
 
 }
